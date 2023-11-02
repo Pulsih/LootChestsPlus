@@ -5,6 +5,7 @@ import me.pulsi_.lootchestsplus.utils.LCPLogger;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.event.inventory.InventoryType;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,7 +26,7 @@ public class LootChestRegistry {
         lootChests.clear();
 
         File folder = new File(plugin.getDataFolder(), "lootchests");
-        if (!folder.exists()) folder.mkdirs();
+        if (!folder.exists()) plugin.saveResource("lootchests" + File.separator + "TestLootChest.yml", true);
 
         File[] lootChestFiles = folder.listFiles();
         if (lootChestFiles == null || lootChestFiles.length == 0) return;
@@ -41,9 +42,23 @@ public class LootChestRegistry {
             }
 
             LootChest lootChest = new LootChest();
+            lootChest.setTitle(values.getString("title"));
+            lootChest.setLines(values.getInt("lines"));
 
+            String configType = values.getString("inventory-type");
+            InventoryType type = InventoryType.PLAYER;
+            try {
+                type = InventoryType.valueOf(configType);
+            } catch (IllegalArgumentException e) {
+                LCPLogger.warn("The lootchest \"" + file.getName() + "\" does not specify a valid inventory type (\"" + configType + "\"), using PLAYER as default.");
+            }
+            lootChest.setInventoryType(type);
 
             lootChests.add(lootChest);
         }
+    }
+
+    public List<LootChest> getLootChests() {
+        return lootChests;
     }
 }

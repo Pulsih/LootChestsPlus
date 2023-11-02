@@ -1,0 +1,3 @@
+title: "&a&lTest Title" # Also support HEX colors
+lines: 3 # The lines of the inventory, if other inventory types are specified this will be ignored
+inventory-type: PLAYER

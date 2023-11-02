@@ -1,29 +1,13 @@
 package me.pulsi_.lootchestsplus.utils;
 
-import me.pulsi_.bankplus.BankPlus;
-import me.pulsi_.bankplus.account.BPPlayer;
-import me.pulsi_.bankplus.bankSystem.BankReader;
-import me.pulsi_.bankplus.listeners.playerChat.PlayerChatMethod;
-import me.pulsi_.bankplus.managers.BPConfigs;
-import me.pulsi_.bankplus.values.Values;
-import net.milkbowl.vault.economy.EconomyResponse;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
-import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
 
 public class LCPUtils {
 
     public static String formatTime(long milliseconds) {
-        if (!Values.CONFIG.isInterestEnabled()) return LCPChat.color("&cInterest disabled.");
-
         long seconds = milliseconds / 1000;
         long minutes = seconds / 60;
         long hours = minutes / 60;
@@ -141,14 +125,6 @@ public class LCPUtils {
         }
     }
 
-    public static boolean isDepositing(Player p) {
-        return BPSets.playerDepositing.contains(p.getUniqueId());
-    }
-
-    public static boolean isWithdrawing(Player p) {
-        return BPSets.playerWithdrawing.contains(p.getUniqueId());
-    }
-
     public static boolean isPlayer(CommandSender s) {
         if (s instanceof Player) return true;
         LCPMessages.send(s, "Not-Player");
@@ -159,44 +135,6 @@ public class LCPUtils {
         if (s.hasPermission(permission)) return true;
         LCPMessages.send(s, "No-Permission", "%permission%$" + permission);
         return false;
-    }
-
-    public static void customWithdraw(Player p) {
-        customWithdraw(p, Values.CONFIG.getMainGuiName());
-    }
-
-    public static void customWithdraw(Player p, String identifier) {
-        if (Values.MESSAGES.isTitleCustomAmountEnabled())
-            LCPUtils.sendTitle(BankPlus.INSTANCE.getConfigs().getConfig(BPConfigs.Type.MESSAGES.name).getString("Title-Custom-Transaction.Title-Withdraw"), p);
-        LCPMessages.send(p, "Chat-Withdraw");
-        BPSets.addPlayerToWithdraw(p);
-        p.closeInventory();
-
-        BPPlayer pl = BankPlus.INSTANCE.getPlayerRegistry().get(p);
-        pl.setOpenedBank(BankPlus.INSTANCE.getBankGuiRegistry().getBanks().get(identifier));
-        pl.setClosingTask(Bukkit.getScheduler().runTaskLater(BankPlus.INSTANCE, () -> {
-            PlayerChatMethod.reopenBank(p, identifier);
-            LCPMessages.send(p, "Chat-Time-Expired");
-        }, Values.CONFIG.getChatExitTime() * 20L));
-    }
-
-    public static void customDeposit(Player p) {
-        customDeposit(p, Values.CONFIG.getMainGuiName());
-    }
-
-    public static void customDeposit(Player p, String identifier) {
-        if (Values.MESSAGES.isTitleCustomAmountEnabled())
-            LCPUtils.sendTitle(BankPlus.INSTANCE.getConfigs().getConfig(BPConfigs.Type.MESSAGES.name).getString("Title-Custom-Transaction.Title-Deposit"), p);
-        LCPMessages.send(p, "Chat-Deposit");
-        BPSets.addPlayerToDeposit(p);
-        p.closeInventory();
-
-        BPPlayer pl = BankPlus.INSTANCE.getPlayerRegistry().get(p);
-        pl.setOpenedBank(BankPlus.INSTANCE.getBankGuiRegistry().getBanks().get(identifier));
-        pl.setClosingTask(Bukkit.getScheduler().runTaskLater(BankPlus.INSTANCE, () -> {
-            PlayerChatMethod.reopenBank(p, identifier);
-            LCPMessages.send(p, "Chat-Time-Expired");
-        }, Values.CONFIG.getChatExitTime() * 20L));
     }
 
     public static void sendTitle(String title, Player p) {
@@ -231,81 +169,6 @@ public class LCPUtils {
         } else p.sendTitle(title, "");
     }
 
-    public static void playSound(String input, Player p) {
-
-        String sound;
-        switch (input) {
-            case "WITHDRAW": {
-                if (!Values.CONFIG.isWithdrawSoundEnabled()) return;
-                sound = Values.CONFIG.getWithdrawSound();
-                if (sound == null) {
-                    LCPLogger.warn("You are missing a string! &8(&ePath: General.Withdraw-Sound.Sound in config.yml&8)");
-                    return;
-                }
-            }
-            break;
-
-            case "DEPOSIT": {
-                if (!Values.CONFIG.isDepositSoundEnabled()) return;
-                sound = Values.CONFIG.getDepositSound();
-                if (sound == null) {
-                    LCPLogger.warn("You are missing a string! &8(&ePath: General.Deposit-Sound.Sound in config.yml&8)");
-                    return;
-                }
-            }
-            break;
-
-            case "VIEW": {
-                if (!Values.CONFIG.isViewSoundEnabled()) return;
-                sound = Values.CONFIG.getViewSound();
-                if (sound == null) {
-                    LCPLogger.warn("You are missing a string! &8(&ePath: General.View-Sound.Sound in config.yml&8)");
-                    return;
-                }
-            }
-            break;
-
-            case "PERSONAL": {
-                if (!Values.CONFIG.isPersonalSoundEnabled()) return;
-                sound = Values.CONFIG.getPersonalSound();
-                if (sound == null) {
-                    LCPLogger.warn("You are missing a string! &8(&ePath: General.Personal-Sound.Sound in config.yml&8)");
-                    return;
-                }
-            }
-            break;
-
-            default:
-                return;
-        }
-
-        if (!sound.contains(",")) {
-            LCPLogger.warn("The format of the sound \"" + sound + "\" is wrong! ");
-            LCPLogger.warn("Please correct it in the config!");
-            return;
-        }
-        String[] pathSlitted = sound.split(",");
-        String soundType;
-        float volume, pitch;
-
-        try {
-            soundType = pathSlitted[0];
-            volume = Float.parseFloat(pathSlitted[1]);
-            pitch = Float.parseFloat(pathSlitted[2]);
-        } catch (ArrayIndexOutOfBoundsException | NumberFormatException e) {
-            LCPLogger.warn("The format of the sound \"" + sound + "\" is wrong! ");
-            LCPLogger.warn("Please correct it in the config!");
-            return;
-        }
-
-        try {
-            p.playSound(p.getLocation(), Sound.valueOf(soundType), volume, pitch);
-        } catch (IllegalArgumentException e) {
-            LCPLogger.warn("\"" + sound + "\" is an invalid sound type for your server version!");
-            LCPLogger.warn("Please change it in the config!");
-        }
-    }
-
     public static long secondsInMilliseconds(int seconds) {
         return seconds * 1000L;
     }
@@ -328,87 +191,5 @@ public class LCPUtils {
 
     public static long ticksInMilliseconds(int ticks) {
         return (ticks / 20) * 1000;
-    }
-
-    public static boolean checkPreRequisites(BigDecimal money, BigDecimal amount, Player p) {
-        if (amount.doubleValue() < 0) {
-            LCPMessages.send(p, "Cannot-Use-Negative-Number");
-            return false;
-        }
-        if (money.doubleValue() == 0) {
-            LCPMessages.send(p, "Insufficient-Money");
-            return false;
-        }
-        return true;
-    }
-
-    public static List<String> placeValues(BigDecimal amount) {
-        return placeValues(null, amount, "amount");
-    }
-
-    public static List<String> placeValues(OfflinePlayer p, BigDecimal amount) {
-        return placeValues(p, amount, "amount");
-    }
-
-    public static List<String> placeValues(BigDecimal amount, String newIdentifier) {
-        return placeValues(null, amount, newIdentifier);
-    }
-
-    public static List<String> placeValues(OfflinePlayer p, BigDecimal amount, String newIdentifier) {
-        List<String> values = new ArrayList<>();
-        if (p != null) {
-            values.add("%player%$" + p.getName());
-            values.add("%player_name%$" + p.getName());
-        }
-
-        values.add("%" + newIdentifier + "%$" + LCPFormatter.formatCommas(amount));
-        values.add("%" + newIdentifier + "_long%$" + amount);
-        values.add("%" + newIdentifier + "_formatted%$" + LCPFormatter.format(amount));
-        values.add("%" + newIdentifier + "_formatted_long%$" + LCPFormatter.formatLong(amount));
-        return values;
-    }
-
-    public static boolean isBankFull(Player p) {
-        return isBankFull(p, Values.CONFIG.getMainGuiName());
-    }
-
-    public static boolean isBankFull(Player p, String bankName) {
-        BigDecimal capacity = new BankReader(bankName).getCapacity(p);
-        if (capacity.doubleValue() <= 0d) return false;
-
-        if (BankPlus.getBPEconomy().getBankBalance(p, bankName).doubleValue() >= capacity.doubleValue()) {
-            LCPMessages.send(p, "Cannot-Deposit-Anymore");
-            return true;
-        }
-        return false;
-    }
-
-    public static boolean hasFailed(Player p, EconomyResponse response) {
-        if (!response.transactionSuccess()) {
-            LCPMessages.send(p, "Internal-Error");
-            LCPLogger.warn("Warning! (THIS IS NOT A BANKPLUS ERROR!) Vault has failed his transaction task. To" +
-                    " avoid dupe bugs also bankplus has cancelled the transaction.");
-            return true;
-        }
-        return false;
-    }
-
-    public static void callEvent(Event event) {
-        Bukkit.getScheduler().runTask(BankPlus.INSTANCE, () -> Bukkit.getPluginManager().callEvent(event));
-    }
-
-    public static String getRequiredItems(List<ItemStack> requiredItems) {
-        StringBuilder builder = new StringBuilder();
-        for (int i = 0; i < requiredItems.size(); i++) {
-            ItemStack item = requiredItems.get(i);
-            int amount = item.getAmount();
-            String material = (item.getType() + (amount > 1 ? "s" : "")).toLowerCase();
-
-            builder.append(amount).append(" ").append(material);
-            if (i == requiredItems.size() - 1) continue;
-            if (i + 1 == requiredItems.size() - 1) builder.append(" and ");
-            else builder.append(", ");
-        }
-        return builder.toString();
     }
 }
