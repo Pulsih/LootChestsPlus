@@ -1,6 +1,7 @@
 package me.pulsi_.lootchestsplus.managers;
 
 import me.pulsi_.lootchestsplus.LootChestsPlus;
+import me.pulsi_.lootchestsplus.listener.PlayerInteractListener;
 import me.pulsi_.lootchestsplus.utils.LCPChat;
 import me.pulsi_.lootchestsplus.utils.LCPLogger;
 import org.bukkit.Bukkit;
@@ -24,7 +25,7 @@ public class LCPData {
         LCPLogger.log("");
         LCPLogger.log("    " + LCPChat.longPrefix + " &2Enabling plugin...");
         LCPLogger.log("    &aRunning on version &f" + plugin.getDescription().getVersion() + "&a!");
-        LCPLogger.log("    &aDetected server version: &f" + plugin.getServerVersion());
+        LCPLogger.log("    &aDetected server version: &f" + plugin.getServer().getVersion());
 
         LCPLogger.log("    &aSetting up the plugin...");
         plugin.getConfigs().setupConfigs();
@@ -55,37 +56,16 @@ public class LCPData {
 
     public boolean reloadPlugin() {
         boolean success = true;
-        Values.CONFIG.setupValues();
-        Values.MESSAGES.setupValues();
-        Values.MULTIPLE_BANKS.setupValues();
-        BPMessages.loadMessages();
 
-        CmdRegisterer registerer = new CmdRegisterer();
-        registerer.resetCmds();
-        registerer.registerCmds();
+        plugin.getLootChestRegistry().loadLootChests();
 
-        if (Values.CONFIG.isLogTransactions()) plugin.getBpLogUtils().setupLoggerFile();
-        if (Values.CONFIG.isIgnoringAfkPlayers()) plugin.getAfkManager().startCountdown();
-        if (Values.CONFIG.isBanktopEnabled()) plugin.getBankTopManager().startUpdateTask();
-        if (Values.CONFIG.isGuiModuleEnabled() && !plugin.getBankGuiRegistry().loadBanks()) success = false;
-
-        AFKManager afkManager = plugin.getAfkManager();
-        if (!afkManager.isPlayerCountdownActive()) afkManager.startCountdown();
-
-        BPInterest interest = plugin.getInterest();
-        if (Values.CONFIG.isInterestEnabled() && interest.wasDisabled()) interest.startInterest();
-
-        Bukkit.getOnlinePlayers().forEach(p -> {
-            BPPlayer player = BankPlus.INSTANCE.getPlayerRegistry().get(p);
-            if (player != null && player.getOpenedBank() != null) p.closeInventory();
-        });
         return success;
     }
 
     private void registerEvents() {
         PluginManager plManager = plugin.getServer().getPluginManager();
 
-        plManager.registerEvents(new PlayerJoinListener(), plugin);
+        plManager.registerEvents(new PlayerInteractListener(plugin), plugin);
     }
 
     private void setupCommands() {

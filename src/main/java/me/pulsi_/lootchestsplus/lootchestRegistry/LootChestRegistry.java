@@ -2,6 +2,7 @@ package me.pulsi_.lootchestsplus.lootchestRegistry;
 
 import me.pulsi_.lootchestsplus.LootChestsPlus;
 import me.pulsi_.lootchestsplus.utils.LCPLogger;
+import org.bukkit.Location;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -10,10 +11,12 @@ import org.bukkit.event.inventory.InventoryType;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class LootChestRegistry {
 
+    private final HashMap<Location, LootChest> spawnedLootChests = new HashMap<>();
     private final List<LootChest> lootChests = new ArrayList<>();
 
     private final LootChestsPlus plugin;
@@ -56,6 +59,10 @@ public class LootChestRegistry {
 
             lootChests.add(lootChest);
         }
+    }
+
+    public HashMap<Location, LootChest> getSpawnedLootChests() {
+        return spawnedLootChests;
     }
 
     public List<LootChest> getLootChests() {
