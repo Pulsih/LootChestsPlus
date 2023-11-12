@@ -4,9 +4,18 @@ import org.bukkit.event.inventory.InventoryType;
 
 public class LootChest {
 
+    private final String name;
     private String title;
     private int lines;
     private InventoryType inventoryType;
+
+    public LootChest(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
 
     public String getTitle() {
         return title;

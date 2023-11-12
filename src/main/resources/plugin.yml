@@ -4,3 +4,6 @@ main: me.pulsi_.lootchestsplus.LootChestsPlus
 api-version: '1.13'
 authors: [Pulsi_]
 description: The best loot chest plugin out there!
+commands:
+  lootchestsplus:
+    aliases: [lootchests, lootchest, lcp]

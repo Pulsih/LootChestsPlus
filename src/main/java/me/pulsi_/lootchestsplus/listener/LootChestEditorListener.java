@@ -3,12 +3,13 @@ package me.pulsi_.lootchestsplus.listener;
 import me.pulsi_.lootchestsplus.LootChestsPlus;
 import me.pulsi_.lootchestsplus.playerRegistry.LCPPlayer;
 import me.pulsi_.lootchestsplus.playerRegistry.PlayerRegistry;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.inventory.ItemStack;
 
 public class LootChestEditorListener implements Listener {
 
@@ -26,10 +27,21 @@ public class LootChestEditorListener implements Listener {
         LCPPlayer p = getPlayer((Player) entity);
         if (!p.isEditingContent()) return;
 
-        ItemStack[] content = e.getInventory().getContents();
 
 
         p.setEditingContent(false);
+    }
+
+    @EventHandler
+    public void onInteract(InventoryClickEvent e) {
+        HumanEntity entity = e.getWhoClicked();
+        if (!(entity instanceof Player)) return;
+
+        LCPPlayer p = getPlayer((Player) entity);
+        if (!p.isEditingContent()) return;
+        e.setCancelled(true);
+
+        Bukkit.broadcastMessage(e.getClickedInventory().toString());
     }
 
     private LCPPlayer getPlayer(Player p) {

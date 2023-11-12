@@ -87,6 +87,10 @@ public class LCPConfigs {
         return YamlConfiguration.loadConfiguration(getFile(path));
     }
 
+    public FileConfiguration getConfig(File file) {
+        return YamlConfiguration.loadConfiguration(file);
+    }
+
     public void setupFile(String fileName, boolean backup) {
         File folderFile = getFile(fileName);
         if (!folderFile.exists()) {

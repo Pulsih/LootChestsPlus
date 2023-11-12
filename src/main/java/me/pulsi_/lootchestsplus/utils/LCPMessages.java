@@ -1,5 +1,6 @@
 package me.pulsi_.lootchestsplus.utils;
 
+import me.pulsi_.lootchestsplus.LootChestsPlus;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -162,17 +163,17 @@ public class LCPMessages {
     public static void loadMessages() {
         messages.clear();
 
-        FileConfiguration config = BankPlus.INSTANCE.getConfigs().getConfig(BPConfigs.Type.MESSAGES.name);
+        FileConfiguration config = LootChestsPlus.INSTANCE.getConfigs().getConfig("messages.yml");
         for (String path : config.getConfigurationSection("").getKeys(false)) {
-            if (!path.equals("Update-File") && !path.equals("Enable-Missing-Message-Alert"))
-                messages.put(path, getPossibleMessages(config, path));
+            if (!path.equals("enable-missing-message-alert")) messages.put(path, getPossibleMessages(config, path));
         }
 
-        if (messages.containsKey("Prefix")) {
-            List<String> prefixes = messages.get("Prefix");
+        if (!messages.containsKey("prefix")) prefix = LCPChat.prefix;
+        else {
+            List<String> prefixes = messages.get("prefix");
             prefix = prefixes.isEmpty() ? LCPChat.prefix : prefixes.get(0);
-        } else prefix = LCPChat.prefix;
-        enableMissingMessageAlert = config.getBoolean("Enable-Missing-Message-Alert");
+        }
+        enableMissingMessageAlert = config.getBoolean("enable-missing-message-alert");
     }
 
     public static List<String> getPossibleMessages(FileConfiguration config, String path) {
@@ -189,7 +190,7 @@ public class LCPMessages {
     }
 
     private static String format(Player p, String text) {
-        return BankPlus.INSTANCE.isPlaceholderApiHooked() ? PlaceholderAPI.setPlaceholders(p, addPrefix(text)) : addPrefix(text);
+        return null; //BankPlus.INSTANCE.isPlaceholderApiHooked() ? PlaceholderAPI.setPlaceholders(p, addPrefix(text)) : addPrefix(text);
     }
 
     private static String format(CommandSender s, String text) {

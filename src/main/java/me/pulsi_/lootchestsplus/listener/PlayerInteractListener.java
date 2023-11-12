@@ -24,7 +24,7 @@ public class PlayerInteractListener implements Listener {
         Action action = e.getAction();
         Block block = e.getClickedBlock();
 
-        if (action == Action.LEFT_CLICK_BLOCK && registry.getSpawnedLootChests().containsKey(block.getLocation()) && p.hasPermission("lootchestsplus.admin")) {
+        if (action == Action.LEFT_CLICK_BLOCK && registry.getSpawnedLootChests().containsKey(block.getLocation()) && !p.hasPermission("lootchestsplus.admin")) {
             e.setCancelled(true);
             return;
         }

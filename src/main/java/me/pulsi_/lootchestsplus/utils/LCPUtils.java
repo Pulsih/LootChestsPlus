@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 
 public class LCPUtils {
 
-    public static String formatTime(long milliseconds) {
+    /*public static String formatTime(long milliseconds) {
         long seconds = milliseconds / 1000;
         long minutes = seconds / 60;
         long hours = minutes / 60;
@@ -86,54 +86,17 @@ public class LCPUtils {
                 return time == 1 ? Values.CONFIG.getDay() : Values.CONFIG.getDays();
         }
         return "";
-    }
-
-    /**
-     * BankPlus does not accept negative numbers, if a number is lower than 0, it will return true.
-     *
-     * @param number The number to check.
-     * @return true if is invalid or false if is not.
-     */
-    public static boolean isInvalidNumber(String number) {
-        return isInvalidNumber(number, null);
-    }
-
-    /**
-     * BankPlus does not accept negative numbers, if a number is lower than 0, it will return true.
-     *
-     * @param number The number to check.
-     * @param s      The command sender to automatically alert if number is invalid.
-     * @return true if is invalid or false if is not.
-     */
-    public static boolean isInvalidNumber(String number, CommandSender s) {
-        if (number == null || number.isEmpty()) {
-            LCPMessages.send(s, "Invalid-Number");
-            return true;
-        }
-        if (number.contains("%")) number = number.replace("%", "");
-
-        try {
-            BigDecimal num = new BigDecimal(number);
-            if (num.doubleValue() < 0) {
-                LCPMessages.send(s, "Cannot-Use-Negative-Number");
-                return true;
-            }
-            return false;
-        } catch (NumberFormatException e) {
-            LCPMessages.send(s, "Invalid-Number");
-            return true;
-        }
-    }
+    }*/
 
     public static boolean isPlayer(CommandSender s) {
         if (s instanceof Player) return true;
-        LCPMessages.send(s, "Not-Player");
+        LCPMessages.send(s, "not_player");
         return false;
     }
 
     public static boolean hasPermission(CommandSender s, String permission) {
         if (s.hasPermission(permission)) return true;
-        LCPMessages.send(s, "No-Permission", "%permission%$" + permission);
+        LCPMessages.send(s, "no_permission", "%permission%$" + permission);
         return false;
     }
 

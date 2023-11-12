@@ -1,6 +1,5 @@
 package me.pulsi_.lootchestsplus.utils;
 
-import me.pulsi_.bankplus.BankPlus;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -16,17 +15,6 @@ public class LCPArgs {
         for (Player p : Bukkit.getOnlinePlayers()) onlinePlayers.add(p.getName());
 
         for (String arg : onlinePlayers)
-            if (arg.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) returningArgs.add(arg);
-        return returningArgs;
-    }
-
-    public static List<String> getBanks(String[] args) {
-        List<String> returningArgs = new ArrayList<>();
-
-        List<String> banks = new ArrayList<>();
-        for (String bankName : BankPlus.INSTANCE.getBankGuiRegistry().getBanks().keySet()) banks.add(bankName);
-
-        for (String arg : banks)
             if (arg.toLowerCase().startsWith(args[args.length - 1].toLowerCase())) returningArgs.add(arg);
         return returningArgs;
     }

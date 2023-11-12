@@ -10,14 +10,12 @@ import org.bukkit.event.inventory.InventoryType;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class LootChestRegistry {
 
     private final HashMap<Location, LootChest> spawnedLootChests = new HashMap<>();
-    private final List<LootChest> lootChests = new ArrayList<>();
+    private final HashMap<String, LootChest> lootChests = new HashMap<>();
 
     private final LootChestsPlus plugin;
 
@@ -32,19 +30,20 @@ public class LootChestRegistry {
         if (!folder.exists()) plugin.saveResource("lootchests" + File.separator + "TestLootChest.yml", true);
 
         File[] lootChestFiles = folder.listFiles();
-        if (lootChestFiles == null || lootChestFiles.length == 0) return;
+        if (lootChestFiles == null) return;
 
         for (File file : lootChestFiles) {
+            String name = file.getName().replace(".yml", "").replace(".yaml", "");
             FileConfiguration values = new YamlConfiguration();
 
             try {
                 values.load(file);
             } catch (IOException | InvalidConfigurationException e) {
-                LCPLogger.warn(e, "Could not load \"" + file.getName() + "\" lootchest file! (Check if there are any yaml errors)");
+                LCPLogger.warn(e, "Could not load \"" + name + "\" lootchest file! (Check if there are any yaml errors)");
                 continue;
             }
 
-            LootChest lootChest = new LootChest();
+            LootChest lootChest = new LootChest(name);
             lootChest.setTitle(values.getString("title"));
             lootChest.setLines(values.getInt("lines"));
 
@@ -53,11 +52,11 @@ public class LootChestRegistry {
             try {
                 type = InventoryType.valueOf(configType);
             } catch (IllegalArgumentException e) {
-                LCPLogger.warn("The lootchest \"" + file.getName() + "\" does not specify a valid inventory type (\"" + configType + "\"), using PLAYER as default.");
+                LCPLogger.warn("The lootchest \"" + name + "\" does not specify a valid inventory type (\"" + configType + "\"), using PLAYER as default.");
             }
             lootChest.setInventoryType(type);
 
-            lootChests.add(lootChest);
+            lootChests.put(name, lootChest);
         }
     }
 
@@ -65,7 +64,7 @@ public class LootChestRegistry {
         return spawnedLootChests;
     }
 
-    public List<LootChest> getLootChests() {
+    public HashMap<String, LootChest> getLootChests() {
         return lootChests;
     }
 }

@@ -1,7 +1,5 @@
 package me.pulsi_.lootchestsplus.utils;
 
-import me.pulsi_.bankplus.values.Values;
-
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -11,8 +9,8 @@ public class LCPFormatter {
 
     private static final String[] order = new String[]
             {
-                    "", Values.CONFIG.getK(), Values.CONFIG.getM(), Values.CONFIG.getB(),
-                    Values.CONFIG.getT(), Values.CONFIG.getQ(), Values.CONFIG.getQq()
+                    "", "K", "M", "B",
+                    "T", "Q", "Qq"
             };
 
     public static String format(BigDecimal balance) {
@@ -26,7 +24,7 @@ public class LCPFormatter {
             amount *= 1000d;
         }
 
-        return setMaxDigits(bal / (amount / 1000d), Values.CONFIG.getMaxDecimalsAmount()) + order[i];
+        return setMaxDigits(bal / (amount / 1000d), 2) + order[i];
     }
 
     public static String format(double balance) {
@@ -38,7 +36,7 @@ public class LCPFormatter {
             amount *= 1000d;
         }
 
-        return setMaxDigits(balance / (amount / 1000d), Values.CONFIG.getMaxDecimalsAmount()) + order[i];
+        return setMaxDigits(balance / (amount / 1000d), 2) + order[i];
     }
 
     public static String formatLong(BigDecimal balance) {
@@ -63,7 +61,7 @@ public class LCPFormatter {
     public static String formatBigDouble(BigDecimal balance) {
         String bal = balance.toString();
 
-        int maxDecimals = Values.CONFIG.getMaxDecimalsAmount();
+        int maxDecimals = 2;
         if (maxDecimals <= 0) return bal.contains(".") ? bal.split("\\.")[0] : bal;
 
         if (balance.doubleValue() > 0 && bal.contains(".")) {
